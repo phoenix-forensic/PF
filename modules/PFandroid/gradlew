@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+BASEDIR=$(dirname "$0")
+WRAPPER_JAR="$BASEDIR/gradle/wrapper/gradle-wrapper.jar"
+if [ -f "$WRAPPER_JAR" ]; then
+  exec "$(command -v java)" -jar "$WRAPPER_JAR" "$@"
+fi
+if command -v gradle >/dev/null 2>&1; then
+  exec gradle "$@"
+fi
+echo "Gradle não encontrado. Instale o Gradle ou adicione o wrapper em gradle/wrapper." >&2
+exit 1

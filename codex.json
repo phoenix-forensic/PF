@@ -1,0 +1,10 @@
+{
+  "project": "gps-antifragil-v3",
+  "modules": [
+    "api",
+    "modules/PFandroid",
+    "firewall",
+    "infra"
+  ],
+  "description": "Plataforma antifrágil para rastreamento seguro com monitoramento em tempo real."
+}

@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">GPS Antifrágil</string>
+    <string name="event_received">Evento recebido em %1$s (risco: %2$s)</string>
+    <string name="anomaly_counter">Anomalias detectadas: %1$d</string>
+</resources>

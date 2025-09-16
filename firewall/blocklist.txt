@@ -1,0 +1,4 @@
+# Domínios bloqueados pelo firewall antifrágil
+example.com
+trackers.example
+malware.test
