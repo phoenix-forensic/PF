@@ -1,0 +1,31 @@
+version: "3.9"
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: infra/dockerfiles/api.Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - APP_SECRET=${APP_SECRET:-chave-super-secreta}
+      - JWT_SECRET=${JWT_SECRET:-super-secreto}
+      - DATABASE_URL=sqlite:////data/artefatos.db
+    volumes:
+      - api-data:/data
+    depends_on:
+      - redis
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+  firewall:
+    build:
+      context: ..
+      dockerfile: infra/dockerfiles/firewall.Dockerfile
+    network_mode: "host"
+    cap_add:
+      - NET_ADMIN
+    depends_on:
+      - api
+volumes:
+  api-data:

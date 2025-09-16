@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <title>Dashboard Antifrágil</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/modern-normalize/2.0.0/modern-normalize.min.css"
+      integrity="sha512-Zl/1Ik5+pUvNbK/CtYQgQki71R+xVQ1BM8DT6vKrrfE0Yv7FpC18JNpDutLCRaPV1oDttxyPjdvVSxGInxjePA=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <style>
+      body {
+        font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        padding: 2rem;
+        background: #0f172a;
+        color: #e2e8f0;
+      }
+      h1 {
+        margin-bottom: 1rem;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1.5rem;
+      }
+      th,
+      td {
+        padding: 0.75rem;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.3);
+      }
+      th {
+        text-align: left;
+        background: rgba(30, 41, 59, 0.7);
+      }
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.2rem 0.75rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+      }
+      .chip.low {
+        background: rgba(34, 197, 94, 0.15);
+        color: #34d399;
+      }
+      .chip.unknown {
+        background: rgba(250, 204, 21, 0.15);
+        color: #facc15;
+      }
+      .chip.spoof {
+        background: rgba(248, 113, 113, 0.15);
+        color: #f87171;
+      }
+      #status {
+        margin-top: 0.5rem;
+        font-size: 0.9rem;
+        opacity: 0.8;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Monitoramento em tempo real</h1>
+    <p id="status">Conectando ao Socket.IO...</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Fonte</th>
+          <th>Tag</th>
+          <th>Latitude</th>
+          <th>Longitude</th>
+          <th>Risco</th>
+          <th>Horário</th>
+        </tr>
+      </thead>
+      <tbody id="event-table"></tbody>
+    </table>
+
+    <script src="https://cdn.socket.io/4.6.1/socket.io.min.js" integrity="sha384-mH+6JGZveHFkNjEcNWef39/C4R2tQeM+c/fi91tIbp/BKUKf5pFwchAuCdb9hHOh" crossorigin="anonymous"></script>
+    <script>
+      const tableBody = document.getElementById("event-table");
+      const status = document.getElementById("status");
+      const socket = io();
+
+      socket.on("connect", () => {
+        status.textContent = "Conectado ao servidor";
+      });
+
+      socket.on("connect_error", () => {
+        status.textContent = "Erro ao conectar. Tentando novamente...";
+      });
+
+      socket.on("novo_evento", (payload) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${payload.source ?? "-"}</td>
+          <td>${payload.tag ?? "-"}</td>
+          <td>${payload.lat ?? "-"}</td>
+          <td>${payload.lon ?? "-"}</td>
+          <td><span class="chip ${payload.risk}">${payload.risk}</span></td>
+          <td>${payload.timestamp ?? new Date().toISOString()}</td>
+        `;
+        tableBody.prepend(row);
+        while (tableBody.children.length > 20) {
+          tableBody.removeChild(tableBody.lastChild);
+        }
+      });
+    </script>
+  </body>
+</html>

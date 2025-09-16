@@ -1,0 +1,40 @@
+name: Test Realtime Socket
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 * * * *'
+
+jobs:
+  realtime:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install backend dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r api/requirements.txt
+      - name: Run unit tests
+        run: pytest
+        working-directory: api
+      - name: Socket smoke test
+        run: |
+          python - <<'PY'
+import socketio
+sio = socketio.Client()
+messages = []
+
+@sio.on('novo_evento')
+def on_event(data):
+    messages.append(data)
+    sio.disconnect()
+
+sio.connect('http://localhost:5000', namespaces=['/'])
+sio.emit('ping')
+sio.wait()
+print('mensagens_recebidas', len(messages))
+PY
+        timeout-minutes: 2
